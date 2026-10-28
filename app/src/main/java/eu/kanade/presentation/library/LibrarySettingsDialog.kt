@@ -53,6 +53,8 @@ fun LibrarySettingsDialog(
     onDismissRequest: () -> Unit,
     viewModel: LibrarySettingsViewModel,
     category: Category?,
+    maxPageRows: Int = 10,
+    canStretchPageSpacing: Boolean = false,
 ) {
     TabbedDialog(
         onDismissRequest = onDismissRequest,
@@ -77,6 +79,8 @@ fun LibrarySettingsDialog(
                 )
                 2 -> DisplayPage(
                     viewModel = viewModel,
+                    maxPageRows = maxPageRows,
+                    canStretchPageSpacing = canStretchPageSpacing,
                 )
             }
         }
@@ -237,6 +241,8 @@ private val displayModes = listOf(
 @Composable
 private fun ColumnScope.DisplayPage(
     viewModel: LibrarySettingsViewModel,
+    maxPageRows: Int,
+    canStretchPageSpacing: Boolean,
 ) {
     val displayMode by viewModel.libraryPreferences.displayMode.collectAsState()
     SettingsChipRow(MR.strings.action_display_mode) {
@@ -313,15 +319,27 @@ private fun ColumnScope.DisplayPage(
         onClick = { showPagination = true },
     )
     if (showPagination) {
-        PaginationSettings(viewModel.libraryPreferences, onDismissRequest = { showPagination = false })
+        PaginationSettings(
+            viewModel.libraryPreferences,
+            maxPageRows,
+            canStretchPageSpacing,
+            onDismissRequest = { showPagination = false },
+        )
     }
 }
 
 @Composable
-private fun PaginationSettings(preferences: LibraryPreferences, onDismissRequest: () -> Unit) {
+private fun PaginationSettings(
+    preferences: LibraryPreferences,
+    maxPageRows: Int,
+    canStretchPageSpacing: Boolean,
+    onDismissRequest: () -> Unit,
+) {
     val paginated by preferences.paginated.collectAsState()
     val rows by preferences.pageRows.collectAsState()
     val buttons by preferences.pageButtons.collectAsState()
+    val maximum = maxPageRows.coerceAtLeast(1)
+    val rowValue = if (rows < 0) maximum else rows.coerceAtMost(maximum)
     val buttonLabels = listOf(
         MR.strings.library_page_buttons_bottom,
         MR.strings.library_page_buttons_top,
@@ -336,15 +354,16 @@ private fun PaginationSettings(preferences: LibraryPreferences, onDismissRequest
             CheckboxItem(stringResource(MR.strings.library_paginated), preferences.paginated)
             if (paginated) {
                 SliderItem(
-                    value = rows,
-                    valueRange = 0..10,
+                    value = rowValue,
+                    valueRange = 0..maximum,
                     label = stringResource(MR.strings.library_page_rows),
-                    valueString = if (rows == 0) stringResource(MR.strings.label_auto) else rows.toString(),
+                    valueString = if (rowValue == 0) stringResource(MR.strings.label_auto) else rowValue.toString(),
                     onChange = preferences.pageRows::set,
                 )
                 CheckboxItem(
                     label = stringResource(MR.strings.library_stretch_page_spacing),
                     pref = preferences.stretchPageSpacing,
+                    enabled = canStretchPageSpacing,
                 )
                 SelectItem(
                     label = stringResource(MR.strings.library_page_buttons),

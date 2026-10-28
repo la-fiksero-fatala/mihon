@@ -50,6 +50,9 @@ import tachiyomi.domain.manga.model.MangaCover as MangaCoverModel
 object CommonMangaItemDefaults {
     val GridHorizontalSpacer = 4.dp
     val GridVerticalSpacer = 4.dp
+    val GridItemPadding = 4.dp
+    val ComfortableGridTitlePadding = 4.dp
+    val GridTitleLineHeight = 18.sp
 
     @Suppress("ConstPropertyName")
     const val BrowseFavoriteCoverAlpha = 0.34f
@@ -223,7 +226,7 @@ fun MangaComfortableGridItem(
                 },
             )
             GridItemTitle(
-                modifier = Modifier.padding(4.dp),
+                modifier = Modifier.padding(CommonMangaItemDefaults.ComfortableGridTitlePadding),
                 title = title,
                 style = MaterialTheme.typography.titleSmall,
                 minLines = 2,
@@ -283,7 +286,7 @@ private fun GridItemTitle(
         modifier = modifier,
         text = title,
         fontSize = 12.sp,
-        lineHeight = 18.sp,
+        lineHeight = CommonMangaItemDefaults.GridTitleLineHeight,
         minLines = minLines,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
@@ -310,7 +313,7 @@ private fun GridItemSelectable(
                 onLongClick = onLongClick,
             )
             .selectedOutline(isSelected = isSelected, color = MaterialTheme.colorScheme.secondary)
-            .padding(4.dp),
+            .padding(CommonMangaItemDefaults.GridItemPadding),
     ) {
         val contentColor = if (isSelected) {
             MaterialTheme.colorScheme.onSecondary

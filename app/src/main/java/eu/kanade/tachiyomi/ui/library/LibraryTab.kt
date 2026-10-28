@@ -227,6 +227,7 @@ data object LibraryTab : Tab {
                         paginated = paginated,
                         pageRows = pageRows,
                         stretchPageSpacing = stretchPageSpacing,
+                        onPageRowsChange = settingsViewModel.libraryPreferences.pageRows::set,
                         pageButtons = pageButtons,
                         categories = state.displayedCategories,
                         searchQuery = state.searchQuery,
@@ -272,6 +273,8 @@ data object LibraryTab : Tab {
         when (val dialog = state.dialog) {
             is LibraryViewModel.Dialog.SettingsSheet -> run {
                 LibrarySettingsDialog(
+                    maxPageRows = libraryNavigation.pageInfo?.maxRows ?: 10,
+                    canStretchPageSpacing = libraryNavigation.pageInfo?.canStretchSpacing == true,
                     onDismissRequest = onDismissRequest,
                     viewModel = settingsViewModel,
                     category = state.activeCategory,

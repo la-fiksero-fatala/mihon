@@ -47,4 +47,40 @@ class LibraryPaginationTest {
         libraryPageItemWidth(height = 350, rowHeight = 650, itemWidth = 400, padding = 8) shouldBe 200
         libraryPageItemWidth(height = 650, rowHeight = 650, itemWidth = 400, padding = 8) shouldBe 400
     }
+
+    @Test
+    fun `manual rows can exceed the natural auto capacity by fitting smaller covers`() {
+        val auto = libraryGridPageLayout(600, 200, 3, 8, 56, 4, 48, 0)
+        val manual = libraryGridPageLayout(600, 200, 3, 8, 56, 4, 48, 3)
+        auto.capacity shouldBe 3
+        manual.capacity shouldBe 9
+        manual.maxRows shouldBe 5
+        manual.itemWidth shouldBe 101
+    }
+
+    @Test
+    fun `unsupported row counts use the numeric row limit`() {
+        val layout = libraryGridPageLayout(600, 200, 3, 8, 56, 4, 48, 99)
+        layout.capacity shouldBe 15
+        layout.maxRows shouldBe 5
+    }
+
+    @Test
+    fun `column changes preserve compatible rows and clamp incompatible rows`() {
+        val narrow = libraryGridPageLayout(600, 30, 10, 8, 56, 4, 48, 6)
+        val wide = libraryGridPageLayout(600, 200, 3, 8, 56, 4, 48, 6)
+        narrow.maxRows shouldBe 6
+        wide.maxRows shouldBe 5
+        libraryCompatiblePageRows(3, wide.maxRows) shouldBe 3
+        libraryCompatiblePageRows(6, wide.maxRows) shouldBe 5
+        libraryCompatiblePageRows(0, wide.maxRows) shouldBe 0
+    }
+
+    @Test
+    fun `vertical fitting disables stretch when rows exceed auto`() {
+        libraryGridPageLayout(600, 200, 3, 8, 56, 4, 48, 0).canStretchSpacing shouldBe true
+        libraryGridPageLayout(600, 200, 3, 8, 56, 4, 48, 3).canStretchSpacing shouldBe false
+        libraryGridPageLayout(344, 200, 3, 8, 56, 4, 48, 0).canStretchSpacing shouldBe false
+        libraryCompatiblePageRows(-1, 5) shouldBe 5
+    }
 }

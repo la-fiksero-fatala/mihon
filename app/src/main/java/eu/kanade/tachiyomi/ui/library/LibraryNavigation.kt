@@ -11,7 +11,12 @@ class LibraryNavigation {
     var pageInfo: LibraryPageInfo? by mutableStateOf(null)
 }
 
-data class LibraryPageInfo(val index: Int, val count: Int)
+data class LibraryPageInfo(
+    val index: Int,
+    val count: Int,
+    val maxRows: Int = 10,
+    val canStretchSpacing: Boolean = false,
+)
 
 internal fun libraryPageDirection(keyCode: Int, volumeKeysEnabled: Boolean): Int? = when (keyCode) {
     KeyEvent.KEYCODE_PAGE_UP -> -1
