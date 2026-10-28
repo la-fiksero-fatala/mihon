@@ -1,5 +1,6 @@
 package eu.kanade.presentation.library.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -68,6 +70,8 @@ internal fun LibraryPaginatedContent(
     onPageRowsChange: (Int) -> Unit,
     stretchPageSpacing: Boolean,
     buttons: LibraryPageButtons,
+    showSlider: Boolean,
+    showButtons: Boolean,
     contentPadding: PaddingValues,
     searchQuery: String?,
     hasActiveFilters: Boolean,
@@ -185,11 +189,11 @@ internal fun LibraryPaginatedContent(
         }
         Row(Modifier.weight(1f)) {
             if (buttons == LibraryPageButtons.Left) {
-                LibraryPageControls(page, pageCount, true, onPageChange)
+                LibraryPageControls(page, pageCount, true, showSlider, showButtons, onPageChange)
             }
             Column(Modifier.weight(1f).fillMaxHeight()) {
                 if (buttons == LibraryPageButtons.Top) {
-                    LibraryPageControls(page, pageCount, false, onPageChange)
+                    LibraryPageControls(page, pageCount, false, showSlider, showButtons, onPageChange)
                 }
                 Box(
                     Modifier.weight(1f)
@@ -218,25 +222,52 @@ internal fun LibraryPaginatedContent(
                     )
                 }
                 if (buttons == LibraryPageButtons.Bottom) {
-                    LibraryPageControls(page, pageCount, false, onPageChange)
+                    LibraryPageControls(page, pageCount, false, showSlider, showButtons, onPageChange)
                 }
             }
             if (buttons == LibraryPageButtons.Right) {
-                LibraryPageControls(page, pageCount, true, onPageChange)
+                LibraryPageControls(page, pageCount, true, showSlider, showButtons, onPageChange)
             }
         }
     }
 }
 
 @Composable
-private fun LibraryPageControls(page: Int, pageCount: Int, vertical: Boolean, onPageChange: (Int) -> Unit) {
-    val controls: @Composable () -> Unit = {
-        IconButton(onClick = { onPageChange(-1) }, enabled = page > 0) {
-            Icon(MaterialSymbols.Rounded.KeyboardArrowUp, stringResource(MR.strings.spen_previous_page))
+private fun LibraryPageControls(
+    page: Int,
+    pageCount: Int,
+    vertical: Boolean,
+    showSlider: Boolean,
+    showButtons: Boolean,
+    onPageChange: (Int) -> Unit,
+) {
+    var selectedPage by remember(page, pageCount) { mutableIntStateOf(page) }
+    val previous: @Composable () -> Unit = {
+        if (showButtons) {
+            IconButton(onClick = { onPageChange(-1) }, enabled = page > 0) {
+                Icon(MaterialSymbols.Rounded.KeyboardArrowUp, stringResource(MR.strings.spen_previous_page))
+            }
         }
-        LibraryPageNumber(page, pageCount)
-        IconButton(onClick = { onPageChange(1) }, enabled = page < pageCount - 1) {
-            Icon(MaterialSymbols.Rounded.KeyboardArrowDown, stringResource(MR.strings.spen_next_page))
+    }
+    val indicator: @Composable (Modifier) -> Unit = { modifier ->
+        if (showSlider) {
+            LibraryPageSlider(
+                page = selectedPage,
+                pageCount = pageCount,
+                onValueChange = { selectedPage = it },
+                onValueChangeFinished = { onPageChange(selectedPage - page) },
+                vertical = vertical,
+                modifier = modifier,
+            )
+        } else {
+            LibraryPageNumber(page, pageCount)
+        }
+    }
+    val next: @Composable () -> Unit = {
+        if (showButtons) {
+            IconButton(onClick = { onPageChange(1) }, enabled = page < pageCount - 1) {
+                Icon(MaterialSymbols.Rounded.KeyboardArrowDown, stringResource(MR.strings.spen_next_page))
+            }
         }
     }
     if (vertical) {
@@ -244,18 +275,32 @@ private fun LibraryPageControls(page: Int, pageCount: Int, vertical: Boolean, on
             modifier = Modifier.fillMaxHeight().width(72.dp).padding(horizontal = 4.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-        ) { controls() }
+        ) {
+            previous()
+            indicator(if (showSlider) Modifier.weight(1f) else Modifier)
+            next()
+        }
     } else {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-        ) { controls() }
+        ) {
+            previous()
+            indicator(if (showSlider) Modifier.weight(1f) else Modifier)
+            next()
+        }
     }
 }
 
 @Composable
-internal fun LibraryPageNumber(page: Int, pageCount: Int, compact: Boolean = false, modifier: Modifier = Modifier) {
+internal fun LibraryPageNumber(
+    page: Int,
+    pageCount: Int,
+    compact: Boolean = false,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+) {
     val description = stringResource(MR.strings.library_page_number, page + 1, pageCount)
     val textModifier = if (compact) Modifier.padding(horizontal = 8.dp, vertical = 4.dp) else modifier
     val number: @Composable () -> Unit = {
@@ -268,7 +313,7 @@ internal fun LibraryPageNumber(page: Int, pageCount: Int, compact: Boolean = fal
     }
     if (compact) {
         Surface(
-            modifier = modifier,
+            modifier = if (onClick != null) modifier.clickable(role = Role.Button, onClick = onClick) else modifier,
             shape = MaterialTheme.shapes.small,
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {

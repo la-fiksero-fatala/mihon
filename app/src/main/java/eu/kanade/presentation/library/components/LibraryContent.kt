@@ -38,6 +38,8 @@ fun LibraryContent(
     stretchPageSpacing: Boolean,
     onPageRowsChange: (Int) -> Unit,
     pageButtons: LibraryPageButtons,
+    pageSlider: Boolean,
+    showPageButtons: Boolean,
     categories: List<Category>,
     searchQuery: String?,
     selection: Set<Long>,
@@ -93,6 +95,7 @@ fun LibraryContent(
                             it.index,
                             it.count,
                             compact = true,
+                            onClick = { navigation.showPageDialog = true },
                             modifier = Modifier.padding(horizontal = 8.dp),
                         )
                     }
@@ -120,6 +123,8 @@ fun LibraryContent(
                 stretchPageSpacing = stretchPageSpacing,
                 onPageRowsChange = onPageRowsChange,
                 pageButtons = pageButtons,
+                pageSlider = pageSlider,
+                showPageButtons = showPageButtons,
                 state = pagerState,
                 contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
                 hasActiveFilters = hasActiveFilters,

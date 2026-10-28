@@ -46,9 +46,16 @@ class LibraryPreferences(
 
     val stretchPageSpacing: Preference<Boolean> = preferenceStore.getBoolean("library_stretch_page_spacing", false)
 
+    val pageSlider: Preference<Boolean> = preferenceStore.getBoolean("library_page_slider", false)
+
     val pageButtons: Preference<LibraryPageButtons> = preferenceStore.getEnum(
         "library_page_buttons",
         LibraryPageButtons.Bottom,
+    )
+
+    val showPageButtons: Preference<Boolean> = preferenceStore.getBoolean(
+        "library_show_page_buttons",
+        pageButtons.get() != LibraryPageButtons.Hidden,
     )
 
     val lastUpdatedTimestamp: Preference<Long> = preferenceStore.getLong(

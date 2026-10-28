@@ -36,6 +36,7 @@ import eu.kanade.presentation.category.components.ChangeCategoryDialog
 import eu.kanade.presentation.library.DeleteLibraryMangaDialog
 import eu.kanade.presentation.library.LibrarySettingsDialog
 import eu.kanade.presentation.library.components.LibraryContent
+import eu.kanade.presentation.library.components.LibraryPageJumpDialog
 import eu.kanade.presentation.library.components.LibraryToolbar
 import eu.kanade.presentation.manga.components.LibraryBottomActionMenu
 import eu.kanade.presentation.more.onboarding.GETTING_STARTED_URL
@@ -106,11 +107,18 @@ data object LibraryTab : Tab {
         val paginated by settingsViewModel.libraryPreferences.paginated.collectAsState()
         val pageRows by settingsViewModel.libraryPreferences.pageRows.collectAsState()
         val stretchPageSpacing by settingsViewModel.libraryPreferences.stretchPageSpacing.collectAsState()
-        val pageButtons by settingsViewModel.libraryPreferences.pageButtons.collectAsState()
+        val pagePosition by settingsViewModel.libraryPreferences.pageButtons.collectAsState()
+        val showPageButtons by settingsViewModel.libraryPreferences.showPageButtons.collectAsState()
+        val pageSlider by settingsViewModel.libraryPreferences.pageSlider.collectAsState()
+        val pageButtons = if (!showPageButtons && !pageSlider) {
+            LibraryPageButtons.Hidden
+        } else {
+            pagePosition.takeUnless { it == LibraryPageButtons.Hidden } ?: LibraryPageButtons.Bottom
+        }
         val tabNavigator = LocalTabNavigator.current
         val lifecycle = LocalLifecycleOwner.current.lifecycle
         val keysEnabled by rememberUpdatedState(
-            tabNavigator.current == this && state.dialog == null && !searchFocused,
+            tabNavigator.current == this && state.dialog == null && !searchFocused && !libraryNavigation.showPageDialog,
         )
         val currentVolumeKeys by rememberUpdatedState(volumeKeys)
         DisposableEffect(context, lifecycle, libraryNavigation) {
@@ -154,6 +162,7 @@ data object LibraryTab : Tab {
                     page = state.coercedActiveCategoryIndex,
                 )
                 LibraryToolbar(
+                    onClickPageNumber = { libraryNavigation.showPageDialog = true },
                     pagination = libraryNavigation.pageInfo.takeIf {
                         paginated && pageButtons == LibraryPageButtons.Hidden && !showCategoryTabs
                     },
@@ -229,6 +238,8 @@ data object LibraryTab : Tab {
                         stretchPageSpacing = stretchPageSpacing,
                         onPageRowsChange = settingsViewModel.libraryPreferences.pageRows::set,
                         pageButtons = pageButtons,
+                        pageSlider = pageSlider,
+                        showPageButtons = showPageButtons,
                         categories = state.displayedCategories,
                         searchQuery = state.searchQuery,
                         selection = state.selection,
@@ -270,6 +281,17 @@ data object LibraryTab : Tab {
         }
 
         val onDismissRequest = viewModel::closeDialog
+        if (libraryNavigation.showPageDialog && paginated && pageButtons == LibraryPageButtons.Hidden) {
+            libraryNavigation.pageInfo?.let {
+                LibraryPageJumpDialog(
+                    page = it.index,
+                    pageCount = it.count,
+                    onSelectPage = libraryNavigation::goToPage,
+                    onDismissRequest = { libraryNavigation.showPageDialog = false },
+                )
+            }
+        }
+
         when (val dialog = state.dialog) {
             is LibraryViewModel.Dialog.SettingsSheet -> run {
                 LibrarySettingsDialog(

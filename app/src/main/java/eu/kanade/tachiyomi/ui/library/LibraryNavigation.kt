@@ -9,6 +9,12 @@ class LibraryNavigation {
     var onPageChange: ((Int) -> Unit)? = null
 
     var pageInfo: LibraryPageInfo? by mutableStateOf(null)
+
+    var showPageDialog by mutableStateOf(false)
+
+    fun goToPage(page: Int) {
+        pageInfo?.let { onPageChange?.invoke(page.coerceIn(0, it.count - 1) - it.index) }
+    }
 }
 
 data class LibraryPageInfo(

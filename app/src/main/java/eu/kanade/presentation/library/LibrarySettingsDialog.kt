@@ -338,6 +338,8 @@ private fun PaginationSettings(
     val paginated by preferences.paginated.collectAsState()
     val rows by preferences.pageRows.collectAsState()
     val buttons by preferences.pageButtons.collectAsState()
+    val pageSlider by preferences.pageSlider.collectAsState()
+    val showPageButtons by preferences.showPageButtons.collectAsState()
     val maximum = maxPageRows.coerceAtLeast(1)
     val rowValue = if (rows < 0) maximum else rows.coerceAtMost(maximum)
     val buttonLabels = listOf(
@@ -345,7 +347,6 @@ private fun PaginationSettings(
         MR.strings.library_page_buttons_top,
         MR.strings.nav_zone_left,
         MR.strings.nav_zone_right,
-        MR.strings.library_page_buttons_hidden,
     ).map { stringResource(it) }
 
     AdaptiveSheet(onDismissRequest = onDismissRequest) {
@@ -365,12 +366,30 @@ private fun PaginationSettings(
                     pref = preferences.stretchPageSpacing,
                     enabled = canStretchPageSpacing,
                 )
-                SelectItem(
-                    label = stringResource(MR.strings.library_page_buttons),
-                    options = buttonLabels.toTypedArray(),
-                    selectedIndex = buttons.ordinal,
-                    onSelect = { preferences.pageButtons.set(LibraryPageButtons.entries[it]) },
+                CheckboxItem(
+                    label = stringResource(MR.strings.library_page_arrows),
+                    pref = preferences.showPageButtons,
                 )
+                SelectItem(
+                    label = stringResource(MR.strings.library_page_indicator),
+                    options = arrayOf(
+                        stringResource(MR.strings.library_page_indicator_number),
+                        stringResource(MR.strings.library_page_indicator_bar),
+                    ),
+                    selectedIndex = if (pageSlider) 1 else 0,
+                    onSelect = { preferences.pageSlider.set(it == 1) },
+                )
+                if (showPageButtons || pageSlider) {
+                    SelectItem(
+                        label = stringResource(MR.strings.library_page_position),
+                        options = buttonLabels.toTypedArray(),
+                        selectedIndex = buttons.takeUnless { it == LibraryPageButtons.Hidden }?.ordinal ?: 0,
+                        onSelect = {
+                            preferences.showPageButtons.set(showPageButtons)
+                            preferences.pageButtons.set(LibraryPageButtons.entries[it])
+                        },
+                    )
+                }
                 Text(
                     text = stringResource(MR.strings.library_pagination_summary),
                     style = MaterialTheme.typography.bodySmall,
