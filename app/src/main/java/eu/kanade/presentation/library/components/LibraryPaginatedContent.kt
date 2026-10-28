@@ -253,7 +253,9 @@ private fun LibraryPageControls(
             onValueChange = { selectedPage = it },
             onValueChangeFinished = { onPageChange(selectedPage - page) },
             vertical = vertical,
-            modifier = modifier,
+            modifier = modifier.padding(
+                if (vertical) PaddingValues(vertical = 16.dp) else PaddingValues(horizontal = 8.dp),
+            ),
         )
         return
     }
