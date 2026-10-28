@@ -59,6 +59,7 @@ import mihon.icons.materialsymbols.automirroredrounded.Help
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.domain.category.model.Category
 import tachiyomi.domain.library.model.LibraryManga
+import tachiyomi.domain.library.model.LibraryPageButtons
 import tachiyomi.domain.manga.model.Manga
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
@@ -102,6 +103,9 @@ data object LibraryTab : Tab {
         val searchInteractionSource = remember { MutableInteractionSource() }
         val searchFocused by searchInteractionSource.collectIsFocusedAsState()
         val volumeKeys by settingsViewModel.libraryPreferences.scrollWithVolumeKeys.collectAsState()
+        val paginated by settingsViewModel.libraryPreferences.paginated.collectAsState()
+        val pageRows by settingsViewModel.libraryPreferences.pageRows.collectAsState()
+        val pageButtons by settingsViewModel.libraryPreferences.pageButtons.collectAsState()
         val tabNavigator = LocalTabNavigator.current
         val lifecycle = LocalLifecycleOwner.current.lifecycle
         val keysEnabled by rememberUpdatedState(
@@ -125,6 +129,8 @@ data object LibraryTab : Tab {
         }
 
         val snackbarHostState = remember { SnackbarHostState() }
+        val showCategoryTabs = (state.showCategoryTabs || !state.searchQuery.isNullOrEmpty()) &&
+            state.displayedCategories.let { it.isNotEmpty() && (it.size > 1 || !it.first().isSystemCategory) }
 
         val onClickRefresh: suspend (Category?) -> Boolean = { category ->
             val started = LibraryUpdateWorker.startNow(context.workManager, category)
@@ -147,6 +153,9 @@ data object LibraryTab : Tab {
                     page = state.coercedActiveCategoryIndex,
                 )
                 LibraryToolbar(
+                    pagination = libraryNavigation.pageInfo.takeIf {
+                        paginated && pageButtons == LibraryPageButtons.Hidden && !showCategoryTabs
+                    },
                     searchInteractionSource = searchInteractionSource,
                     hasActiveFilters = state.hasActiveFilters,
                     selectedCount = state.selection.size,
@@ -214,13 +223,16 @@ data object LibraryTab : Tab {
                 else -> {
                     LibraryContent(
                         navigation = libraryNavigation,
+                        paginated = paginated,
+                        pageRows = pageRows,
+                        pageButtons = pageButtons,
                         categories = state.displayedCategories,
                         searchQuery = state.searchQuery,
                         selection = state.selection,
                         contentPadding = contentPadding,
                         currentPage = state.coercedActiveCategoryIndex,
                         hasActiveFilters = state.hasActiveFilters,
-                        showPageTabs = state.showCategoryTabs || !state.searchQuery.isNullOrEmpty(),
+                        showPageTabs = showCategoryTabs,
                         onChangeCurrentPage = viewModel::updateActiveCategoryIndex,
                         onClickManga = { navigator.push(MangaScreen(it)) },
                         onContinueReadingClicked = { it: LibraryManga ->

@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.AppBarActions
 import eu.kanade.presentation.components.SearchToolbar
+import eu.kanade.tachiyomi.ui.library.LibraryPageInfo
 import mihon.icons.materialsymbols.MaterialSymbols
 import mihon.icons.materialsymbols.rounded.FilterList
 import mihon.icons.materialsymbols.rounded.FlipToBack
@@ -41,9 +42,11 @@ fun LibraryToolbar(
     onSearchQueryChange: (String?) -> Unit,
     scrollBehavior: TopAppBarScrollBehavior?,
     searchInteractionSource: MutableInteractionSource,
+    pagination: LibraryPageInfo? = null,
 ) = when {
     selectedCount > 0 -> LibrarySelectionToolbar(
         selectedCount = selectedCount,
+        pagination = pagination,
         onClickUnselectAll = onClickUnselectAll,
         onClickSelectAll = onClickSelectAll,
         onClickInvertSelection = onClickInvertSelection,
@@ -59,6 +62,7 @@ fun LibraryToolbar(
         onClickOpenRandomManga = onClickOpenRandomManga,
         scrollBehavior = scrollBehavior,
         searchInteractionSource = searchInteractionSource,
+        pagination = pagination,
     )
 }
 
@@ -74,6 +78,7 @@ private fun LibraryRegularToolbar(
     onClickOpenRandomManga: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior?,
     searchInteractionSource: MutableInteractionSource,
+    pagination: LibraryPageInfo?,
 ) {
     val pillAlpha = if (isSystemInDarkTheme()) 0.12f else 0.08f
     SearchToolbar(
@@ -93,6 +98,7 @@ private fun LibraryRegularToolbar(
                         fontSize = 14.sp,
                     )
                 }
+                pagination?.let { LibraryPageNumber(it.index, it.count, compact = true) }
             }
         },
         searchQuery = searchQuery,
@@ -129,12 +135,18 @@ private fun LibraryRegularToolbar(
 @Composable
 private fun LibrarySelectionToolbar(
     selectedCount: Int,
+    pagination: LibraryPageInfo?,
     onClickUnselectAll: () -> Unit,
     onClickSelectAll: () -> Unit,
     onClickInvertSelection: () -> Unit,
 ) {
     AppBar(
-        titleContent = { Text(text = "$selectedCount") },
+        titleContent = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "$selectedCount")
+                pagination?.let { LibraryPageNumber(it.index, it.count, compact = true) }
+            }
+        },
         actions = {
             AppBarActions(
                 listOf(

@@ -17,6 +17,7 @@ import tachiyomi.presentation.core.util.plus
 @Composable
 internal fun LibraryList(
     state: LazyListState,
+    userScrollEnabled: Boolean = true,
     items: List<LibraryItem>,
     contentPadding: PaddingValues,
     selection: Set<Long>,
@@ -28,6 +29,7 @@ internal fun LibraryList(
 ) {
     FastScrollLazyColumn(
         state = state,
+        userScrollEnabled = userScrollEnabled,
         modifier = Modifier.fillMaxSize(),
         contentPadding = contentPadding + PaddingValues(vertical = 8.dp),
     ) {

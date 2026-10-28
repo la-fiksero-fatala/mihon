@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 import tachiyomi.domain.library.model.LibraryManga
 import tachiyomi.domain.manga.model.MangaCover
@@ -13,6 +14,8 @@ import tachiyomi.domain.manga.model.MangaCover
 @Composable
 internal fun LibraryCompactGrid(
     state: LazyGridState,
+    userScrollEnabled: Boolean = true,
+    maxItemWidth: Dp = Dp.Infinity,
     items: List<LibraryItem>,
     showTitle: Boolean,
     columns: Int,
@@ -26,6 +29,7 @@ internal fun LibraryCompactGrid(
 ) {
     LazyLibraryGrid(
         state = state,
+        userScrollEnabled = userScrollEnabled,
         modifier = Modifier.fillMaxSize(),
         columns = columns,
         contentPadding = contentPadding,
@@ -38,6 +42,7 @@ internal fun LibraryCompactGrid(
         ) { libraryItem ->
             val manga = libraryItem.libraryManga.manga
             MangaCompactGridItem(
+                maxWidth = maxItemWidth,
                 isSelected = manga.id in selection,
                 title = manga.title.takeIf { showTitle },
                 coverData = MangaCover(

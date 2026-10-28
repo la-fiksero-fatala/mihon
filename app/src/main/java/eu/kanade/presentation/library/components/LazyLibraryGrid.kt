@@ -15,6 +15,7 @@ import tachiyomi.presentation.core.util.plus
 @Composable
 internal fun LazyLibraryGrid(
     state: LazyGridState,
+    userScrollEnabled: Boolean = true,
     modifier: Modifier = Modifier,
     columns: Int,
     contentPadding: PaddingValues,
@@ -22,6 +23,7 @@ internal fun LazyLibraryGrid(
 ) {
     FastScrollLazyVerticalGrid(
         state = state,
+        userScrollEnabled = userScrollEnabled,
         columns = if (columns == 0) GridCells.Adaptive(128.dp) else GridCells.Fixed(columns),
         modifier = modifier,
         contentPadding = contentPadding + PaddingValues(8.dp),

@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -79,8 +81,10 @@ fun MangaCompactGridItem(
     coverAlpha: Float = 1f,
     coverBadgeStart: @Composable (RowScope.() -> Unit)? = null,
     coverBadgeEnd: @Composable (RowScope.() -> Unit)? = null,
+    maxWidth: Dp = Dp.Infinity,
 ) {
     GridItemSelectable(
+        modifier = if (maxWidth == Dp.Infinity) Modifier else Modifier.wrapContentWidth().widthIn(max = maxWidth),
         isSelected = isSelected,
         onClick = onClick,
         onLongClick = onLongClick,
@@ -185,8 +189,10 @@ fun MangaComfortableGridItem(
     coverBadgeStart: (@Composable RowScope.() -> Unit)? = null,
     coverBadgeEnd: (@Composable RowScope.() -> Unit)? = null,
     onClickContinueReading: (() -> Unit)? = null,
+    maxWidth: Dp = Dp.Infinity,
 ) {
     GridItemSelectable(
+        modifier = if (maxWidth == Dp.Infinity) Modifier else Modifier.wrapContentWidth().widthIn(max = maxWidth),
         isSelected = isSelected,
         onClick = onClick,
         onLongClick = onLongClick,
