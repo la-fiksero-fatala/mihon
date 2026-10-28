@@ -24,10 +24,10 @@ import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.components.AdaptiveSheet
 import eu.kanade.presentation.components.TabbedDialog
 import eu.kanade.presentation.components.TabbedDialogPaddings
-import eu.kanade.presentation.more.settings.widget.TextPreferenceWidget
 import eu.kanade.tachiyomi.ui.library.LibrarySettingsViewModel
 import eu.kanade.tachiyomi.util.system.isReleaseBuildType
 import mihon.icons.materialsymbols.MaterialSymbols
+import mihon.icons.materialsymbols.rounded.KeyboardArrowRight
 import mihon.icons.materialsymbols.rounded.Refresh
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.domain.category.model.Category
@@ -306,12 +306,11 @@ private fun ColumnScope.DisplayPage(
         pref = viewModel.libraryPreferences.categoryNumberOfItems,
     )
 
-    val paginated by viewModel.libraryPreferences.paginated.collectAsState()
     var showPagination by rememberSaveable { mutableStateOf(false) }
-    TextPreferenceWidget(
-        title = stringResource(MR.strings.library_pagination),
-        subtitle = stringResource(if (paginated) MR.strings.on else MR.strings.off),
-        onPreferenceClick = { showPagination = true },
+    BaseSortItem(
+        label = stringResource(MR.strings.library_pagination),
+        icon = MaterialSymbols.Rounded.KeyboardArrowRight,
+        onClick = { showPagination = true },
     )
     if (showPagination) {
         PaginationSettings(viewModel.libraryPreferences, onDismissRequest = { showPagination = false })
@@ -342,6 +341,10 @@ private fun PaginationSettings(preferences: LibraryPreferences, onDismissRequest
                     label = stringResource(MR.strings.library_page_rows),
                     valueString = if (rows == 0) stringResource(MR.strings.label_auto) else rows.toString(),
                     onChange = preferences.pageRows::set,
+                )
+                CheckboxItem(
+                    label = stringResource(MR.strings.library_stretch_page_spacing),
+                    pref = preferences.stretchPageSpacing,
                 )
                 SelectItem(
                     label = stringResource(MR.strings.library_page_buttons),

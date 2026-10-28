@@ -15,6 +15,8 @@ import tachiyomi.domain.manga.model.MangaCover
 internal fun LibraryComfortableGrid(
     state: LazyGridState,
     userScrollEnabled: Boolean = true,
+    stretchSpacing: Boolean = false,
+    stretchColumns: Boolean = false,
     maxItemWidth: Dp = Dp.Infinity,
     items: List<LibraryItem>,
     columns: Int,
@@ -29,6 +31,8 @@ internal fun LibraryComfortableGrid(
     LazyLibraryGrid(
         state = state,
         userScrollEnabled = userScrollEnabled,
+        stretchSpacing = stretchSpacing,
+        stretchColumns = stretchColumns,
         modifier = Modifier.fillMaxSize(),
         columns = columns,
         contentPadding = contentPadding,

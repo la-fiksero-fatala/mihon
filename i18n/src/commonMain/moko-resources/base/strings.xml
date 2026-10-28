@@ -449,6 +449,7 @@
     <string name="library_pagination">Pagination</string>
     <string name="library_paginated">Paginated library</string>
     <string name="library_page_rows">Rows per page</string>
+    <string name="library_stretch_page_spacing">Stretch item spacing</string>
     <string name="library_page_buttons">Page buttons</string>
     <string name="library_page_buttons_top">Top</string>
     <string name="library_page_buttons_bottom">Bottom</string>

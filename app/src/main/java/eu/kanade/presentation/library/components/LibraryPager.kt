@@ -37,6 +37,7 @@ fun LibraryPager(
     navigation: LibraryNavigation,
     paginated: Boolean,
     pageRows: Int,
+    stretchPageSpacing: Boolean,
     pageButtons: LibraryPageButtons,
     state: PagerState,
     contentPadding: PaddingValues,
@@ -104,6 +105,7 @@ fun LibraryPager(
             when (displayMode) {
                 LibraryDisplayMode.List -> {
                     LibraryList(
+                        stretchSpacing = paginated && stretchPageSpacing,
                         state = listState,
                         userScrollEnabled = !paginated,
                         items = displayedItems,
@@ -118,6 +120,8 @@ fun LibraryPager(
                 }
                 LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
                     LibraryCompactGrid(
+                        stretchSpacing = paginated && stretchPageSpacing,
+                        stretchColumns = paginated && stretchPageSpacing && pageRows > 0,
                         maxItemWidth = maxItemWidth,
                         state = gridState,
                         userScrollEnabled = !paginated,
@@ -135,6 +139,8 @@ fun LibraryPager(
                 }
                 LibraryDisplayMode.ComfortableGrid -> {
                     LibraryComfortableGrid(
+                        stretchSpacing = paginated && stretchPageSpacing,
+                        stretchColumns = paginated && stretchPageSpacing && pageRows > 0,
                         maxItemWidth = maxItemWidth,
                         state = gridState,
                         userScrollEnabled = !paginated,

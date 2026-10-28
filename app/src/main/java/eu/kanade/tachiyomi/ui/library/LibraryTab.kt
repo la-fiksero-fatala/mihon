@@ -105,6 +105,7 @@ data object LibraryTab : Tab {
         val volumeKeys by settingsViewModel.libraryPreferences.scrollWithVolumeKeys.collectAsState()
         val paginated by settingsViewModel.libraryPreferences.paginated.collectAsState()
         val pageRows by settingsViewModel.libraryPreferences.pageRows.collectAsState()
+        val stretchPageSpacing by settingsViewModel.libraryPreferences.stretchPageSpacing.collectAsState()
         val pageButtons by settingsViewModel.libraryPreferences.pageButtons.collectAsState()
         val tabNavigator = LocalTabNavigator.current
         val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -225,6 +226,7 @@ data object LibraryTab : Tab {
                         navigation = libraryNavigation,
                         paginated = paginated,
                         pageRows = pageRows,
+                        stretchPageSpacing = stretchPageSpacing,
                         pageButtons = pageButtons,
                         categories = state.displayedCategories,
                         searchQuery = state.searchQuery,
