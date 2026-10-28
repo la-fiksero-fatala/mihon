@@ -240,7 +240,7 @@ internal fun LibraryPageNumber(page: Int, pageCount: Int, compact: Boolean = fal
     val number: @Composable () -> Unit = {
         Text(
             text = "${page + 1} / $pageCount",
-            style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium,
+            style = if (compact) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             modifier = textModifier.semantics { contentDescription = description },
         )
