@@ -2,7 +2,6 @@ package eu.kanade.presentation.library.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +9,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -71,7 +72,6 @@ internal fun LibraryPaginatedContent(
     stretchPageSpacing: Boolean,
     buttons: LibraryPageButtons,
     showSlider: Boolean,
-    showButtons: Boolean,
     contentPadding: PaddingValues,
     searchQuery: String?,
     hasActiveFilters: Boolean,
@@ -189,11 +189,11 @@ internal fun LibraryPaginatedContent(
         }
         Row(Modifier.weight(1f)) {
             if (buttons == LibraryPageButtons.Left) {
-                LibraryPageControls(page, pageCount, true, showSlider, showButtons, onPageChange)
+                LibraryPageControls(page, pageCount, true, showSlider, onPageChange)
             }
             Column(Modifier.weight(1f).fillMaxHeight()) {
                 if (buttons == LibraryPageButtons.Top) {
-                    LibraryPageControls(page, pageCount, false, showSlider, showButtons, onPageChange)
+                    LibraryPageControls(page, pageCount, false, showSlider, onPageChange)
                 }
                 Box(
                     Modifier.weight(1f)
@@ -222,11 +222,11 @@ internal fun LibraryPaginatedContent(
                     )
                 }
                 if (buttons == LibraryPageButtons.Bottom) {
-                    LibraryPageControls(page, pageCount, false, showSlider, showButtons, onPageChange)
+                    LibraryPageControls(page, pageCount, false, showSlider, onPageChange)
                 }
             }
             if (buttons == LibraryPageButtons.Right) {
-                LibraryPageControls(page, pageCount, true, showSlider, showButtons, onPageChange)
+                LibraryPageControls(page, pageCount, true, showSlider, onPageChange)
             }
         }
     }
@@ -238,57 +238,60 @@ private fun LibraryPageControls(
     pageCount: Int,
     vertical: Boolean,
     showSlider: Boolean,
-    showButtons: Boolean,
     onPageChange: (Int) -> Unit,
 ) {
     var selectedPage by remember(page, pageCount) { mutableIntStateOf(page) }
-    val previous: @Composable () -> Unit = {
-        if (showButtons) {
-            IconButton(onClick = { onPageChange(-1) }, enabled = page > 0) {
-                Icon(MaterialSymbols.Rounded.KeyboardArrowUp, stringResource(MR.strings.spen_previous_page))
-            }
-        }
+    val modifier = if (vertical) {
+        Modifier.fillMaxHeight().width(72.dp).padding(horizontal = 4.dp)
+    } else {
+        Modifier.fillMaxWidth().padding(horizontal = 8.dp)
     }
-    val indicator: @Composable (Modifier) -> Unit = { modifier ->
-        if (showSlider) {
-            LibraryPageSlider(
-                page = selectedPage,
-                pageCount = pageCount,
-                onValueChange = { selectedPage = it },
-                onValueChangeFinished = { onPageChange(selectedPage - page) },
-                vertical = vertical,
-                modifier = modifier,
-            )
-        } else {
-            LibraryPageNumber(page, pageCount)
+    if (showSlider) {
+        LibraryPageSlider(
+            page = selectedPage,
+            pageCount = pageCount,
+            onValueChange = { selectedPage = it },
+            onValueChangeFinished = { onPageChange(selectedPage - page) },
+            vertical = vertical,
+            modifier = modifier,
+        )
+        return
+    }
+    val previous: @Composable () -> Unit = {
+        IconButton(
+            onClick = { onPageChange(-1) },
+            enabled = page > 0,
+            modifier = Modifier.size(56.dp),
+        ) {
+            Icon(MaterialSymbols.Rounded.KeyboardArrowUp, stringResource(MR.strings.spen_previous_page))
         }
     }
     val next: @Composable () -> Unit = {
-        if (showButtons) {
-            IconButton(onClick = { onPageChange(1) }, enabled = page < pageCount - 1) {
-                Icon(MaterialSymbols.Rounded.KeyboardArrowDown, stringResource(MR.strings.spen_next_page))
-            }
+        IconButton(
+            onClick = { onPageChange(1) },
+            enabled = page < pageCount - 1,
+            modifier = Modifier.size(56.dp),
+        ) {
+            Icon(MaterialSymbols.Rounded.KeyboardArrowDown, stringResource(MR.strings.spen_next_page))
         }
     }
     if (vertical) {
         Column(
-            modifier = Modifier.fillMaxHeight().width(72.dp).padding(horizontal = 4.dp),
-            verticalArrangement = Arrangement.Center,
+            modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            previous()
-            indicator(if (showSlider) Modifier.weight(1f) else Modifier)
-            next()
+            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { previous() }
+            LibraryPageNumber(page, pageCount)
+            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { next() }
         }
     } else {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = modifier.height(56.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            previous()
-            indicator(if (showSlider) Modifier.weight(1f) else Modifier)
-            next()
+            Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) { previous() }
+            LibraryPageNumber(page, pageCount)
+            Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) { next() }
         }
     }
 }

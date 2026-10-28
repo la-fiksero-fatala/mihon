@@ -32,6 +32,7 @@ import mihon.icons.materialsymbols.rounded.Refresh
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.domain.category.model.Category
 import tachiyomi.domain.library.model.LibraryDisplayMode
+import tachiyomi.domain.library.model.LibraryNavigationMode
 import tachiyomi.domain.library.model.LibraryPageButtons
 import tachiyomi.domain.library.model.LibrarySort
 import tachiyomi.domain.library.model.sort
@@ -338,8 +339,7 @@ private fun PaginationSettings(
     val paginated by preferences.paginated.collectAsState()
     val rows by preferences.pageRows.collectAsState()
     val buttons by preferences.pageButtons.collectAsState()
-    val pageSlider by preferences.pageSlider.collectAsState()
-    val showPageButtons by preferences.showPageButtons.collectAsState()
+    val navigation by preferences.pageNavigation.collectAsState()
     val maximum = maxPageRows.coerceAtLeast(1)
     val rowValue = if (rows < 0) maximum else rows.coerceAtMost(maximum)
     val buttonLabels = listOf(
@@ -366,28 +366,22 @@ private fun PaginationSettings(
                     pref = preferences.stretchPageSpacing,
                     enabled = canStretchPageSpacing,
                 )
-                CheckboxItem(
-                    label = stringResource(MR.strings.library_page_arrows),
-                    pref = preferences.showPageButtons,
-                )
                 SelectItem(
-                    label = stringResource(MR.strings.library_page_indicator),
+                    label = stringResource(MR.strings.pref_reader_navigation),
                     options = arrayOf(
-                        stringResource(MR.strings.library_page_indicator_number),
+                        stringResource(MR.strings.library_page_buttons_hidden),
                         stringResource(MR.strings.library_page_indicator_bar),
+                        stringResource(MR.strings.library_page_buttons),
                     ),
-                    selectedIndex = if (pageSlider) 1 else 0,
-                    onSelect = { preferences.pageSlider.set(it == 1) },
+                    selectedIndex = navigation.ordinal,
+                    onSelect = { preferences.pageNavigation.set(LibraryNavigationMode.entries[it]) },
                 )
-                if (showPageButtons || pageSlider) {
+                if (navigation != LibraryNavigationMode.Hidden) {
                     SelectItem(
                         label = stringResource(MR.strings.library_page_position),
                         options = buttonLabels.toTypedArray(),
                         selectedIndex = buttons.takeUnless { it == LibraryPageButtons.Hidden }?.ordinal ?: 0,
-                        onSelect = {
-                            preferences.showPageButtons.set(showPageButtons)
-                            preferences.pageButtons.set(LibraryPageButtons.entries[it])
-                        },
+                        onSelect = { preferences.pageButtons.set(LibraryPageButtons.entries[it]) },
                     )
                 }
                 Text(

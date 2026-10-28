@@ -8,6 +8,7 @@ import tachiyomi.core.common.preference.PreferenceStore
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.core.common.preference.getEnum
 import tachiyomi.domain.library.model.LibraryDisplayMode
+import tachiyomi.domain.library.model.LibraryNavigationMode
 import tachiyomi.domain.library.model.LibraryPageButtons
 import tachiyomi.domain.library.model.LibrarySort
 import tachiyomi.domain.manga.model.Manga
@@ -46,16 +47,19 @@ class LibraryPreferences(
 
     val stretchPageSpacing: Preference<Boolean> = preferenceStore.getBoolean("library_stretch_page_spacing", false)
 
-    val pageSlider: Preference<Boolean> = preferenceStore.getBoolean("library_page_slider", false)
-
     val pageButtons: Preference<LibraryPageButtons> = preferenceStore.getEnum(
         "library_page_buttons",
         LibraryPageButtons.Bottom,
     )
 
-    val showPageButtons: Preference<Boolean> = preferenceStore.getBoolean(
-        "library_show_page_buttons",
-        pageButtons.get() != LibraryPageButtons.Hidden,
+    val pageNavigation: Preference<LibraryNavigationMode> = preferenceStore.getEnum(
+        "library_page_navigation",
+        when {
+            preferenceStore.getBoolean("library_page_slider", false).get() -> LibraryNavigationMode.Bar
+            preferenceStore.getBoolean("library_show_page_buttons", pageButtons.get() != LibraryPageButtons.Hidden)
+                .get() -> LibraryNavigationMode.Buttons
+            else -> LibraryNavigationMode.Hidden
+        },
     )
 
     val lastUpdatedTimestamp: Preference<Long> = preferenceStore.getLong(

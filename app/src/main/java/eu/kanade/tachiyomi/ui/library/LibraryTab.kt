@@ -60,6 +60,7 @@ import mihon.icons.materialsymbols.automirroredrounded.Help
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.domain.category.model.Category
 import tachiyomi.domain.library.model.LibraryManga
+import tachiyomi.domain.library.model.LibraryNavigationMode
 import tachiyomi.domain.library.model.LibraryPageButtons
 import tachiyomi.domain.manga.model.Manga
 import tachiyomi.i18n.MR
@@ -108,9 +109,8 @@ data object LibraryTab : Tab {
         val pageRows by settingsViewModel.libraryPreferences.pageRows.collectAsState()
         val stretchPageSpacing by settingsViewModel.libraryPreferences.stretchPageSpacing.collectAsState()
         val pagePosition by settingsViewModel.libraryPreferences.pageButtons.collectAsState()
-        val showPageButtons by settingsViewModel.libraryPreferences.showPageButtons.collectAsState()
-        val pageSlider by settingsViewModel.libraryPreferences.pageSlider.collectAsState()
-        val pageButtons = if (!showPageButtons && !pageSlider) {
+        val pageNavigation by settingsViewModel.libraryPreferences.pageNavigation.collectAsState()
+        val pageButtons = if (pageNavigation == LibraryNavigationMode.Hidden) {
             LibraryPageButtons.Hidden
         } else {
             pagePosition.takeUnless { it == LibraryPageButtons.Hidden } ?: LibraryPageButtons.Bottom
@@ -238,8 +238,7 @@ data object LibraryTab : Tab {
                         stretchPageSpacing = stretchPageSpacing,
                         onPageRowsChange = settingsViewModel.libraryPreferences.pageRows::set,
                         pageButtons = pageButtons,
-                        pageSlider = pageSlider,
-                        showPageButtons = showPageButtons,
+                        pageSlider = pageNavigation == LibraryNavigationMode.Bar,
                         categories = state.displayedCategories,
                         searchQuery = state.searchQuery,
                         selection = state.selection,
