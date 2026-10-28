@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import eu.kanade.core.preference.PreferenceMutableState
 import eu.kanade.tachiyomi.ui.library.LibraryItem
+import eu.kanade.tachiyomi.ui.library.LibraryNavigation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import tachiyomi.domain.category.model.Category
@@ -27,6 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun LibraryContent(
+    navigation: LibraryNavigation,
     categories: List<Category>,
     searchQuery: String?,
     selection: Set<Long>,
@@ -90,6 +92,7 @@ fun LibraryContent(
             },
         ) {
             LibraryPager(
+                navigation = navigation,
                 state = pagerState,
                 contentPadding = PaddingValues(bottom = contentPadding.calculateBottomPadding()),
                 hasActiveFilters = hasActiveFilters,

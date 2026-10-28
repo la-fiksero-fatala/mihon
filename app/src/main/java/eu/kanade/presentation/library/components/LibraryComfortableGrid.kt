@@ -2,6 +2,7 @@ package eu.kanade.presentation.library.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,6 +12,7 @@ import tachiyomi.domain.manga.model.MangaCover
 
 @Composable
 internal fun LibraryComfortableGrid(
+    state: LazyGridState,
     items: List<LibraryItem>,
     columns: Int,
     contentPadding: PaddingValues,
@@ -22,6 +24,7 @@ internal fun LibraryComfortableGrid(
     onGlobalSearchClicked: () -> Unit,
 ) {
     LazyLibraryGrid(
+        state = state,
         modifier = Modifier.fillMaxSize(),
         columns = columns,
         contentPadding = contentPadding,

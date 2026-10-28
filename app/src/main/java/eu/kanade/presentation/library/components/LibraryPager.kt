@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +22,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import eu.kanade.core.preference.PreferenceMutableState
 import eu.kanade.tachiyomi.ui.library.LibraryItem
+import eu.kanade.tachiyomi.ui.library.LibraryNavigation
 import tachiyomi.domain.category.model.Category
 import tachiyomi.domain.library.model.LibraryDisplayMode
 import tachiyomi.domain.library.model.LibraryManga
@@ -29,6 +32,7 @@ import tachiyomi.presentation.core.util.plus
 
 @Composable
 fun LibraryPager(
+    navigation: LibraryNavigation,
     state: PagerState,
     contentPadding: PaddingValues,
     hasActiveFilters: Boolean,
@@ -78,9 +82,20 @@ fun LibraryPager(
         val onClickManga: (LibraryManga) -> Unit = { onClickManga(category, it) }
         val onLongClickManga: (LibraryManga) -> Unit = { onLongClickManga(category, it) }
 
+        val listState = rememberLazyListState()
+        val gridState = rememberLazyGridState()
+        LibraryScrollNavigation(
+            navigation = navigation,
+            listState = listState,
+            gridState = gridState,
+            isList = displayMode == LibraryDisplayMode.List,
+            active = state.currentPage == page,
+        )
+
         when (displayMode) {
             LibraryDisplayMode.List -> {
                 LibraryList(
+                    state = listState,
                     items = items,
                     contentPadding = contentPadding,
                     selection = selection,
@@ -93,6 +108,7 @@ fun LibraryPager(
             }
             LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
                 LibraryCompactGrid(
+                    state = gridState,
                     items = items,
                     showTitle = displayMode is LibraryDisplayMode.CompactGrid,
                     columns = columns,
@@ -107,6 +123,7 @@ fun LibraryPager(
             }
             LibraryDisplayMode.ComfortableGrid -> {
                 LibraryComfortableGrid(
+                    state = gridState,
                     items = items,
                     columns = columns,
                     contentPadding = contentPadding,
